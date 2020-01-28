@@ -158,7 +158,20 @@ class block_point_view_edit_form extends block_edit_form {
                 );
 
                 $sectionid = 1;
-
+                
+                /* Shortcuts */
+                $mform->addElement(
+                    'button',
+                    'go_to_save',
+                    get_string('go_to_save', 'block_point_view')
+                    );
+                
+                $mform->addElement(
+                    'button',
+                    'close_field',
+                    get_string('close_field', 'block_point_view')
+                    );
+                
                 /* IF there is no activities */
                 if (empty($activities)) {
 
@@ -267,18 +280,6 @@ class block_point_view_edit_form extends block_edit_form {
 
                     }
 
-                    /* Shortcuts */
-                    $mform->addElement(
-                        'button',
-                        'go_to_save',
-                        get_string('go_to_save', 'block_point_view')
-                    );
-
-                    $mform->addElement(
-                        'button',
-                        'close_field',
-                        get_string('close_field', 'block_point_view')
-                    );
 
                     /* ----------------------------------------------------------------------------------------------------- */
 
