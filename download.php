@@ -74,8 +74,6 @@ try {
 
                 $pointview = $DB->get_records('block_point_view', ['courseid' => $courseid], '', 'id,cmid,userid,vote');
 
-                $vote = $DB->get_record_sql('SELECT COUNT(*) FROM {user} WHERE deleted = 1 OR suspended = 1;');
-
                 $users = $DB->get_records('user', null, '', user_picture::fields());
                 
                 $vote = array (
