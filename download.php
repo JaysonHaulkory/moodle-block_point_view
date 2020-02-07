@@ -75,7 +75,9 @@ try {
                 $pointview = $DB->get_records('block_point_view', ['courseid' => $courseid], '', 'id,cmid,userid,vote');
 
                 $users = $DB->get_records('user', null, '', user_picture::fields());
-                
+
+                $courses = get_courses();
+
                 $vote = array (
                     1 => "easy",
                     2 => "better",
@@ -84,15 +86,43 @@ try {
 
                 $data = array();
 
-                foreach ($activities as $index => $activity) {
+                if ($courseid == 1) {
 
-                    if (isset($result[($activity['id'])]->cmid)) {
+                    foreach ($courses as $activity) {
 
-                        foreach ($pointview as $row) {
+                        $sectioncourse = $DB->get_record('course_categories', array('id' => $activity->category, ), 'name');
 
-                            if ($row->cmid == $activity['id']) {
+                        if (isset($result[($activity->id)]->cmid)) {
 
-                                array_push($data, array(
+                            foreach ($pointview as $row) {
+
+                                if ($row->cmid == $activity->id) {
+
+                                    array_push($data, array(
+                                        $sectioncourse->name,
+                                        format_string($activity->fullname),
+                                        $result[($activity->id)]->typeone,
+                                        $result[($activity->id)]->typetwo,
+                                        $result[($activity->id)]->typethree,
+                                        $result[($activity->id)]->total,
+                                        $vote[$row->vote],
+                                        $users[($row->userid)]->firstname . ' ' . $users[($row->userid)]->lastname
+                                    )
+                                        );
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    foreach ($activities as $index => $activity) {
+
+                        if (isset($result[($activity['id'])]->cmid)) {
+
+                            foreach ($pointview as $row) {
+
+                                if ($row->cmid == $activity['id']) {
+
+                                    array_push($data, array(
                                         get_section_name($course, $activity['section']),
                                         format_string($activity['name']),
                                         $result[($activity['id'])]->typeone,
@@ -102,7 +132,8 @@ try {
                                         $vote[$row->vote],
                                         $users[($row->userid)]->firstname . ' ' . $users[($row->userid)]->lastname
                                     )
-                                );
+                                        );
+                                }
                             }
                         }
                     }

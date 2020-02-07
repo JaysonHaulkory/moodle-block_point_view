@@ -33,4 +33,11 @@ $observers = array(
         'callback' => 'block_point_view_observer::store',
         'internal' => false,
     ),
+
+
+    array(
+        'eventname' => '\core\event\course_created',
+        'callback' => 'block_point_view_observer::store',
+        'internal' => false,
+    ),
 );

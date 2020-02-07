@@ -216,7 +216,7 @@ class block_point_view extends block_base {
     public function applicable_formats() {
         return array(
             'all' => false,
-            'site-index' => false,
+            'site-index' => true,
             'course-view' => true,
             );
     }

@@ -8,6 +8,14 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, ajax, notificat
                 /* Resize the activity name field to give space to Likes icons */
                 $('.mod-indent-outer').css({'width': '85%'});
 
+                /* Position for courses reactions */
+                $(".coursebox").append("<div class='reaction_box'></div>").css({'height' : '60px'});
+                $('.reaction_box').css({'position' : 'relative', 'left' : '72%', 'top' : '-30px','width' : '10%'});
+                $(".coursebox").append("<div class='difficulty_box'></div>");
+                $('.difficulty_box').css({'position' : 'relative', 'top' : '-37px','width' : '10px'});
+                $('.coursebox a').css({'position' : 'relative', 'left' : '10px'});
+
+
                 /* ID of the current user */
                 var userId = parseInt(envconf.userid);
 
@@ -66,6 +74,7 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, ajax, notificat
                     var trackcolor = ajaxResult4;
 
                     /* Array of the modules which have the reactions activated */
+
                     var moduleSelect = ajaxResult2;
 
                     /* Enumeration of the possible reactions */
@@ -707,9 +716,11 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, ajax, notificat
                     /* For each selected module, create a reaction zone */
                     moduleSelect.forEach(function(moduleIdParam) {
                         var moduleId = parseInt(moduleIdParam);
-                        if (document.getElementById('module-' + moduleId) !== null) {
 
+                        if ((document.getElementById('module-' + moduleId) !== null) || (document.querySelectorAll('[data-courseid="' + moduleId + '"]')) !== null) {
                             var pointViewsModule = searchModule(moduleId);
+                            
+                            $('.coursebox[data-courseid="' + moduleId + '"]').prop('id', 'module-' + moduleId);
 
                             /* Create the HTML block necessary to each activity */
                             var htmlBlock = '<div class="block_point_view reactions">' +
@@ -730,8 +741,12 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, ajax, notificat
                                 '<span class="group_nb">' + pointViewsModule.total + '</span></div>';
 
                             /* Export the HTML block */
-                            $('#module-' + moduleId + ' .activityinstance').append(htmlBlock);
-
+                            if (courseId != 1) {
+                            	$('#module-' + moduleId + ' .activityinstance').append(htmlBlock);
+                            } else {
+                            	$('.coursebox[data-courseid="' + moduleId + '"] .reaction_box').append(htmlBlock);
+                            }
+                            
                             /* Initialise reactionVotedArray and CSS */
                             switch (parseInt(pointViewsModule.uservote)) {
                                 case 1:
@@ -863,7 +878,8 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, ajax, notificat
 
                     /* Display difficulty tracks */
                     difficultylevels.forEach(function(value) {
-
+                    	var position = (courseId == 1 ? " .difficulty_box" : " .activityinstance a");
+                    	$('.coursebox[data-courseid="' + value.id + '"]').prop('id', 'module-' + value.id);
                         if (value.difficultyLevel !== '0') {
                             var difficulty;
                             switch (parseInt(value.difficultyLevel)) {
@@ -883,10 +899,10 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, ajax, notificat
 
                             var difficultyBlock = '<div class="block_point_view track ' + difficulty + 'track"></div>';
 
-                            $('#module-' + value.id + ' .activityinstance a').prepend(difficultyBlock);
+                            $('#module-' + value.id + position).prepend(difficultyBlock);
                         } else {
                             var difficultyBlockEmpty = '<span class="block_point_view track"></span>';
-                            $('#module-' + value.id + ' .activityinstance a').prepend(difficultyBlockEmpty);
+                            $('#module-' + value.id + position).prepend(difficultyBlockEmpty);
                         }
                     });
 
