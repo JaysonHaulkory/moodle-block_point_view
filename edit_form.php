@@ -206,8 +206,8 @@ class block_point_view_edit_form extends block_edit_form {
                             if ($temp['id'] != 1) { /* Need to be modified to display */
                                 $attributes = ['class' => 'iconlarge activityicon'];
 
-                                $icon = $OUTPUT->pix_icon('icon', 'course', 'point_of_view', $attributes);
-
+                                $icon = $OUTPUT->pix_icon('i/course', 'course', 'core', $attributes);
+                                
                                 $activityoption = array();
 
                                 $activityoption[] =& $mform->createElement(

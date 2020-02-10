@@ -208,7 +208,7 @@ try {
 
                         $attributes = ['class' => 'iconlarge activityicon'];
 
-                        $icon = $OUTPUT->pix_icon('icon', 'Course', 'Course', $attributes);
+                        $icon = $OUTPUT->pix_icon('i/course', 'course', 'core', $attributes);
 
                         $sectioncourse = $DB->get_record('course_categories', array('id' => $activity->category, ),  'name');
 
