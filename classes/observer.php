@@ -46,27 +46,30 @@ class block_point_view_observer {
         if (!$blockrecord = $DB->get_record('block_instances', array('blockname' => 'point_view',
             'parentcontextid' => $coursecontext->id), '*')) {
             $blockrecord = $DB->get_record('block_instances', array('blockname' => 'point_view',
-                'parentcontextid' => intval(2)), '*', MUST_EXIST);
+                'parentcontextid' => intval(2)), '*');
         }
-        $blockinstance = block_instance('point_view', $blockrecord);
-        $blockinstance->config->enable_point_views_checkbox;
-
-        $enablepointviewscheckbox = (isset($blockinstance->config->enable_point_views_checkbox)) ?
-        $blockinstance->config->enable_point_views_checkbox :
-        0;
-
-        if ($enablepointviewscheckbox) {
-            try {
-                $moduleselectm = "moduleselectm" . $event->objectid;
-                $blockinstance->config->$moduleselectm = $event->objectid;
-
-                $DB->update_record("block_instances", array('id' => $blockrecord->id,
-                    'configdata' => base64_encode(serialize($blockinstance->config))));
-            } catch (dml_exception $e) {
-
-                return 'Exception : ' . $e->getMessage() . '\n';
-
+        if (!empty($blockrecord->configdata)){
+            $blockinstance = block_instance('point_view', $blockrecord);
+            $blockinstance->config->enable_point_views_checkbox;
+            
+            $enablepointviewscheckbox = (isset($blockinstance->config->enable_point_views_checkbox)) ?
+            $blockinstance->config->enable_point_views_checkbox :
+            0;
+            
+            if ($enablepointviewscheckbox) {
+                try {
+                    $moduleselectm = "moduleselectm" . $event->objectid;
+                    $blockinstance->config->$moduleselectm = $event->objectid;
+                    
+                    $DB->update_record("block_instances", array('id' => $blockrecord->id,
+                        'configdata' => base64_encode(serialize($blockinstance->config))));
+                } catch (dml_exception $e) {
+                    
+                    return 'Exception : ' . $e->getMessage() . '\n';
+                    
+                }
             }
+            
         }
 
     }
