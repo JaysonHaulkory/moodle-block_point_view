@@ -78,7 +78,7 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, ajax, notificat
 
                         /* Enumeration of the possible reactions */
                         var Reactions = {
-                            null: 0,
+                            NULL: 0,
                             EASY: 1,
                             BETTER: 2,
                             HARD: 3
