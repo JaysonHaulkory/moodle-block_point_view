@@ -207,7 +207,7 @@ class block_point_view_edit_form extends block_edit_form {
                                 $attributes = ['class' => 'iconlarge activityicon'];
 
                                 $icon = $OUTPUT->pix_icon('i/course', 'course', 'core', $attributes);
-                                
+
                                 $activityoption = array();
 
                                 $activityoption[] =& $mform->createElement(

@@ -209,3 +209,14 @@
     left: 50%;
     transform: translate(-50%, -50%);
 }
+/* CSS For combo box course/category front page */
+#frontpage-category-combo .reaction_box{
+    position : relative;
+    left : 72%;
+    top : 0px;
+    width : 10%;
+}
+
+#frontpage-category-combo .difficulty_box{
+    top : 0px;
+}

@@ -28,6 +28,7 @@ defined('MOODLE_INTERNAL') || die();
 
 require_once(__DIR__ . '/../../config.php');
 require_once($CFG->dirroot . '/blocks/point_view/lib.php');
+require_once($CFG->dirroot.'/course/renderer.php');
 
 try {
     require_login();

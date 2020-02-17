@@ -9,11 +9,15 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, ajax, notificat
                 $('.mod-indent-outer').css({'width': '85%'});
 
                 /* Position for courses reactions */
-                $(".coursebox").append("<div class='reaction_box'></div>").css({'height' : '60px'});
-                $('.reaction_box').css({'position' : 'relative', 'left' : '72%', 'top' : '-30px','width' : '10%'});
-                $(".coursebox").append("<div class='difficulty_box'></div>");
-                $('.difficulty_box').css({'position' : 'relative', 'top' : '-37px','width' : '10px'});
+
+                $('.coursebox').append("<div class='reaction_box'></div>");
+                $('.coursebox').css({'height' : '48px'});
+                $('#frontpage-available-course-list .reaction_box').css({'position' : 'relative', 'left' : '72%', 'top' : '-30px','width' : '10%'});
+                $('.coursebox').append("<div class='difficulty_box'></div>");
+                $('#frontpage-available-course-list .difficulty_box').css({'position' : 'relative', 'top' : '-37px','width' : '10px'});
                 $('.coursebox a').css({'position' : 'relative', 'left' : '10px'});
+                /* folder friendly */
+                $('.folder .mod-indent-outer').prepend('<div class="activityinstance" style="width: 0px;"><a></a></div>');
 
                 /* ID of the current user */
                 var userId = parseInt(envconf.userid);
@@ -57,11 +61,18 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, ajax, notificat
                         methodname: 'block_point_view_get_track_colors',
                         args: {},
                         fail: notification.exception
+                    },
+                    {
+                        methodname: 'block_point_view_get_enrol_list',
+                        args: {
+                            userid: userId,
+                        },
+                        fail: notification.exception
                     }
                 ]);
 
-                $.when(ajaxPromises[0], ajaxPromises[1], ajaxPromises[2], ajaxPromises[3], ajaxPromises[4])
-                    .done(function(ajaxResult0, ajaxResult1, ajaxResult2, ajaxResult3, ajaxResult4) {
+                $.when(ajaxPromises[0], ajaxPromises[1], ajaxPromises[2], ajaxPromises[3], ajaxPromises[4], ajaxPromises[5])
+                    .done(function(ajaxResult0, ajaxResult1, ajaxResult2, ajaxResult3, ajaxResult4, ajaxResult5) {
 
                         /* Array with all the needed data about the reactions of the page */
                         var pointViewsSQL = ajaxResult0;
@@ -71,6 +82,8 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, ajax, notificat
                         var difficultylevels = ajaxResult3;
 
                         var trackcolor = ajaxResult4;
+
+                        var custom = ajaxResult5;
 
                         /* Array of the modules which have the reactions activated */
 
@@ -430,181 +443,197 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, ajax, notificat
                             }
                         }
 
+                        function containsObject(obj, list) {
+                            var i;
+                            for (i = 0; i < list.length; i++) {
+                                if (list[i] === obj) {
+                                    return true;
+                                }
+                            }
+
+                            return false;
+                        }
+
                         /**
                          * Event when the reaction image is clicked
                          * @param {Object} event
                          */
                         function onClick(event) {
-                            if (userId !== null && userId !== 1) {
+                            var isOnMainPage = (courseId != 1 ? true : (custom.ids).includes(event.data.moduleId.toString(10)));
+                            if (isOnMainPage) {
+                                if (userId !== null && userId !== 1) {
 
-                                /* Get the number of 'reactionName' reaction */
-                                var nbReation = parseInt((event.data.module)
-                                    .getElementsByClassName(event.data.reactionName + '_nb')[0].innerText);
+                                    /* Get the number of 'reactionName' reaction */
+                                    var nbReation = parseInt((event.data.module)
+                                        .getElementsByClassName(event.data.reactionName + '_nb')[0].innerText);
 
-                                /* Get the total number of reaction */
-                                totalVoteArray[event.data.moduleId] = parseInt((event.data.module)
-                                    .getElementsByClassName('group_nb')[0].innerText);
+                                    /* Get the total number of reaction */
+                                    totalVoteArray[event.data.moduleId] = parseInt((event.data.module)
+                                        .getElementsByClassName('group_nb')[0].innerText);
 
-                                /* IF there is no 'reactionName' reaction, change the emoji in black and white */
-                                if (nbReation === 0) {
-                                    $('#module-' + event.data.moduleId + ' .' + event.data.reactionName)
-                                        .css({'-webkit-filter': '', 'filter': ''});
-                                }
+                                    /* IF there is no 'reactionName' reaction, change the emoji in black and white */
+                                    if (nbReation === 0) {
+                                        $('#module-' + event.data.moduleId + ' .' + event.data.reactionName)
+                                            .css({'-webkit-filter': '', 'filter': ''});
+                                    }
 
-                                /* IF this is a new vote for the user */
-                                if (reactionVotedArray[event.data.moduleId] === Reactions.NULL) {
+                                    /* IF this is a new vote for the user */
+                                    if (reactionVotedArray[event.data.moduleId] === Reactions.NULL) {
 
-                                    /* AJAX call to the PHP function which add a new line in DB */
-                                    ajax.call([
-                                        {
-                                            methodname: 'block_point_view_update_db',
-                                            args: {
-                                                func: 'insert',
-                                                userid: userId,
-                                                courseid: courseId,
-                                                cmid: event.data.moduleId,
-                                                vote: event.data.reactionSelect
-                                            },
-                                            done: function() {
+                                        /* AJAX call to the PHP function which add a new line in DB */
+                                        ajax.call([
+                                            {
+                                                methodname: 'block_point_view_update_db',
+                                                args: {
+                                                    func: 'insert',
+                                                    userid: userId,
+                                                    courseid: courseId,
+                                                    cmid: event.data.moduleId,
+                                                    vote: event.data.reactionSelect
+                                                },
+                                                done: function() {
 
-                                                /* Increment the number of the new reaction of 1 */
-                                                (event.data.module).getElementsByClassName(event.data.reactionName + '_nb')[0]
-                                                    .innerText = (nbReation + 1);
+                                                    /* Increment the number of the new reaction of 1 */
+                                                    (event.data.module).getElementsByClassName(event.data.reactionName + '_nb')[0]
+                                                        .innerText = (nbReation + 1);
 
-                                                /* Update the text appearance to know that this is the selected reaction */
-                                                $('#module-' + event.data.moduleId + ' .' + event.data.reactionName + '_nb').css({
-                                                    'font-weight': 'bold',
-                                                    'color': '#5585B6'
-                                                });
+                                                    /* Update the text appearance to know that this is the selected reaction */
+                                                    $('#module-' + event.data.moduleId + ' .' + event.data.reactionName + '_nb').css({
+                                                        'font-weight': 'bold',
+                                                        'color': '#5585B6'
+                                                    });
 
-                                                /* Update the value of total number reaction with an increment of 1 */
-                                                (event.data.module).getElementsByClassName('group_nb')[0].innerText =
-                                                    (totalVoteArray[event.data.moduleId] + 1);
+                                                    /* Update the value of total number reaction with an increment of 1 */
+                                                    (event.data.module).getElementsByClassName('group_nb')[0].innerText =
+                                                        (totalVoteArray[event.data.moduleId] + 1);
 
-                                                /* Update the current reation with the new one */
-                                                reactionVotedArray[event.data.moduleId] = event.data.reactionSelect;
-                                            },
-                                            fail: notification.exception
-                                        }
-                                    ]);
-                                } else if (reactionVotedArray[event.data.moduleId] === event.data.reactionSelect) {
-                                    /* IF the user canceled its vote */
+                                                    /* Update the current reation with the new one */
+                                                    reactionVotedArray[event.data.moduleId] = event.data.reactionSelect;
+                                                },
+                                                fail: notification.exception
+                                            }
+                                        ]);
+                                    } else if (reactionVotedArray[event.data.moduleId] === event.data.reactionSelect) {
+                                        /* IF the user canceled its vote */
 
-                                    /* AJAX call to the PHP function which remove a line in DB */
-                                    ajax.call([
-                                        {
-                                            methodname: 'block_point_view_update_db',
-                                            args: {
-                                                func: 'remove',
-                                                userid: userId,
-                                                courseid: courseId,
-                                                cmid: event.data.moduleId,
-                                                vote: event.data.reactionSelect
-                                            },
-                                            done: function() {
+                                        /* AJAX call to the PHP function which remove a line in DB */
+                                        ajax.call([
+                                            {
+                                                methodname: 'block_point_view_update_db',
+                                                args: {
+                                                    func: 'remove',
+                                                    userid: userId,
+                                                    courseid: courseId,
+                                                    cmid: event.data.moduleId,
+                                                    vote: event.data.reactionSelect
+                                                },
+                                                done: function() {
 
-                                                /* Decrement the number of old of 1 */
-                                                nbReation--;
+                                                    /* Decrement the number of old of 1 */
+                                                    nbReation--;
 
-                                                /* Update the number of old reaction */
-                                                (event.data.module).getElementsByClassName(event.data.reactionName + '_nb')[0]
-                                                    .innerText = nbReation;
+                                                    /* Update the number of old reaction */
+                                                    (event.data.module).getElementsByClassName(event.data.reactionName + '_nb')[0]
+                                                        .innerText = nbReation;
 
-                                                /* Update the text appearance to know that this is no longer the selected reaction */
-                                                $('#module-' + event.data.moduleId + ' .' + event.data.reactionName + '_nb').css({
-                                                    'font-weight': 'normal',
-                                                    'color': 'black'
-                                                });
+                                                    /* Update the text appearance to know that this is no longer the selected reaction */
+                                                    $('#module-' + event.data.moduleId + ' .' + event.data.reactionName + '_nb').css({
+                                                        'font-weight': 'normal',
+                                                        'color': 'black'
+                                                    });
 
-                                                /*
-                                                    * IF after the decrementation, the number of old reaction is 0
-                                                    * THEN change the emoji in black and white
+                                                    /*
+                                                        * IF after the decrementation, the number of old reaction is 0
+                                                        * THEN change the emoji in black and white
+                                                        */
+                                                    if (nbReation === 0) {
+                                                        $('#module-' + event.data.moduleId + ' .' + event.data.reactionName)
+                                                            .css({'-webkit-filter': 'grayscale(100%)', 'filter': 'grayscale(100%)'});
+                                                    }
+
+                                                    /* Update the value of total number reaction with an decrement of 1 */
+                                                    (event.data.module).getElementsByClassName('group_nb')[0].innerText =
+                                                        (totalVoteArray[event.data.moduleId] - 1);
+
+                                                    /* Update the current reaction with 'none reaction' */
+                                                    reactionVotedArray[event.data.moduleId] = Reactions.NULL;
+                                                },
+                                                fail: notification.exception
+                                            }
+                                        ]);
+                                    } else {
+                                        /* IF the user update its vote */
+
+                                        /* AJAX call to the PHP function which update a line in DB */
+                                        ajax.call([
+                                            {
+                                                methodname: 'block_point_view_update_db',
+                                                args: {
+                                                    func: 'update',
+                                                    userid: userId,
+                                                    courseid: courseId,
+                                                    cmid: event.data.moduleId,
+                                                    vote: event.data.reactionSelect
+                                                },
+                                                done: function() {
+
+                                                    /* Increment the number of 'reactionName' reaction of 1 */
+                                                    (event.data.module).getElementsByClassName(event.data.reactionName + '_nb')[0]
+                                                        .innerText = (nbReation + 1);
+
+                                                    /* Update the text appearance to know that this is the selected reaction */
+                                                    $('#module-' + (event.data.moduleId) + ' .' + (event.data.reactionName) + '_nb').css({
+                                                        'font-weight': 'bold',
+                                                        'color': '#5585B6'
+                                                    });
+
+                                                    /* Find the name of the reaction selected */
+                                                    var reationSelectName;
+                                                    switch (reactionVotedArray[event.data.moduleId]) {
+                                                        case Reactions.EASY:
+                                                            reationSelectName = 'easy';
+                                                            break;
+                                                        case Reactions.BETTER:
+                                                            reationSelectName = 'better';
+                                                            break;
+                                                        case Reactions.HARD:
+                                                            reationSelectName = 'hard';
+                                                            break;
+                                                    }
+
+                                                    /*  Get the current number of the old reaction and decrement it of 1 */
+                                                    var nbReationSelect = parseInt((event.data.module)
+                                                        .getElementsByClassName(reationSelectName + '_nb')[0].innerText) - 1;
+
+                                                    /* Update the value of the old reaction */
+                                                    (event.data.module).getElementsByClassName(reationSelectName + '_nb')[0]
+                                                        .innerText = nbReationSelect;
+
+                                                    /* Update the text appearance to know that this is no longer the selected reaction */
+                                                    $('#module-' + (event.data.moduleId) + ' .' + reationSelectName + '_nb').css({
+                                                        'font-weight': 'normal',
+                                                        'color': 'black'
+                                                    });
+
+                                                    /*
+                                                    * IF after the decrementation, the number of the old
+                                                    * reaction is 0 THEN change the emoji in black and white
                                                     */
-                                                if (nbReation === 0) {
-                                                    $('#module-' + event.data.moduleId + ' .' + event.data.reactionName)
-                                                        .css({'-webkit-filter': 'grayscale(100%)', 'filter': 'grayscale(100%)'});
-                                                }
+                                                    if (nbReationSelect === 0) {
+                                                        $('#module-' + (event.data.moduleId) + ' .' + reationSelectName)
+                                                            .css({'-webkit-filter': 'grayscale(100%)', 'filter': 'grayscale(100%)'});
+                                                    }
 
-                                                /* Update the value of total number reaction with an decrement of 1 */
-                                                (event.data.module).getElementsByClassName('group_nb')[0].innerText =
-                                                    (totalVoteArray[event.data.moduleId] - 1);
-
-                                                /* Update the current reaction with 'none reaction' */
-                                                reactionVotedArray[event.data.moduleId] = Reactions.NULL;
-                                            },
-                                            fail: notification.exception
-                                        }
-                                    ]);
-                                } else {
-                                    /* IF the user update its vote */
-
-                                    /* AJAX call to the PHP function which update a line in DB */
-                                    ajax.call([
-                                        {
-                                            methodname: 'block_point_view_update_db',
-                                            args: {
-                                                func: 'update',
-                                                userid: userId,
-                                                courseid: courseId,
-                                                cmid: event.data.moduleId,
-                                                vote: event.data.reactionSelect
-                                            },
-                                            done: function() {
-
-                                                /* Increment the number of 'reactionName' reaction of 1 */
-                                                (event.data.module).getElementsByClassName(event.data.reactionName + '_nb')[0]
-                                                    .innerText = (nbReation + 1);
-
-                                                /* Update the text appearance to know that this is the selected reaction */
-                                                $('#module-' + (event.data.moduleId) + ' .' + (event.data.reactionName) + '_nb').css({
-                                                    'font-weight': 'bold',
-                                                    'color': '#5585B6'
-                                                });
-
-                                                /* Find the name of the reaction selected */
-                                                var reationSelectName;
-                                                switch (reactionVotedArray[event.data.moduleId]) {
-                                                    case Reactions.EASY:
-                                                        reationSelectName = 'easy';
-                                                        break;
-                                                    case Reactions.BETTER:
-                                                        reationSelectName = 'better';
-                                                        break;
-                                                    case Reactions.HARD:
-                                                        reationSelectName = 'hard';
-                                                        break;
-                                                }
-
-                                                /*  Get the current number of the old reaction and decrement it of 1 */
-                                                var nbReationSelect = parseInt((event.data.module)
-                                                    .getElementsByClassName(reationSelectName + '_nb')[0].innerText) - 1;
-
-                                                /* Update the value of the old reaction */
-                                                (event.data.module).getElementsByClassName(reationSelectName + '_nb')[0]
-                                                    .innerText = nbReationSelect;
-
-                                                /* Update the text appearance to know that this is no longer the selected reaction */
-                                                $('#module-' + (event.data.moduleId) + ' .' + reationSelectName + '_nb').css({
-                                                    'font-weight': 'normal',
-                                                    'color': 'black'
-                                                });
-
-                                                /*
-                                                * IF after the decrementation, the number of the old
-                                                * reaction is 0 THEN change the emoji in black and white
-                                                */
-                                                if (nbReationSelect === 0) {
-                                                    $('#module-' + (event.data.moduleId) + ' .' + reationSelectName)
-                                                        .css({'-webkit-filter': 'grayscale(100%)', 'filter': 'grayscale(100%)'});
-                                                }
-
-                                                /* Update the current reation with the new one */
-                                                reactionVotedArray[event.data.moduleId] = event.data.reactionSelect;
-                                            },
-                                            fail: notification.exception
-                                        }
-                                    ]);
+                                                    /* Update the current reation with the new one */
+                                                    reactionVotedArray[event.data.moduleId] = event.data.reactionSelect;
+                                                },
+                                                fail: notification.exception
+                                            }
+                                        ]);
+                                    }
                                 }
+                            } else {
+                                alert("You are not enrolled in this course, you can't react to this.");
                             }
                         }
 

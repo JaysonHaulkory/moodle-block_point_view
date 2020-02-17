@@ -772,4 +772,44 @@ class block_point_view_external extends external_api {
             )
         );
     }
+
+    public static function get_enrol_list($userid) {
+
+        $courses = get_courses();
+        $ids = array();
+        foreach ($courses as $course) {
+            $context = context_course::instance(intval($course->id));
+            if (is_enrolled($context, $userid)) {
+                array_push($ids, intval($course->id));
+            }
+        }
+        return array('ids' => $ids);
+    }
+    /**
+     * All necessary parameters
+     *
+     * @return external_function_parameters
+     */
+    public static function get_enrol_list_parameters() {
+        return new external_function_parameters(
+            array(
+                'userid' => new external_value(PARAM_INT, 'id of user', VALUE_REQUIRED)
+            )
+            );
+    }
+
+    /**
+     * Return section ids array
+     *
+     * @return external_description
+     */
+    public static function get_enrol_list_returns() {
+        return new external_single_structure(
+            array(
+                'ids' => new external_multiple_structure(
+                    new external_value(PARAM_TEXT, 'Course ID', VALUE_REQUIRED)
+                    ),
+            )
+        );
+    }
 }
