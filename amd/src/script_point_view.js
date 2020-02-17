@@ -17,7 +17,11 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, ajax, notificat
                 $('#frontpage-available-course-list .difficulty_box').css({'position' : 'relative', 'top' : '-37px','width' : '10px'});
                 $('.coursebox a').css({'position' : 'relative', 'left' : '10px'});
                 /* folder friendly */
-                $('.folder .mod-indent-outer').prepend('<div class="activityinstance" style="width: 0px;"><a></a></div>');
+                $('.folder .mod-indent-outer').each(function (index, element) {
+                	if (!$(element).find(".activityinstance").length > 0){
+                		$(element).prepend('<div class="activityinstance" style="width: 0px;"><a></a></div>');
+                		}
+                });
 
                 /* ID of the current user */
                 var userId = parseInt(envconf.userid);
