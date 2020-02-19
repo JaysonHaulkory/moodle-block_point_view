@@ -16,6 +16,8 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, ajax, notificat
                 $('.coursebox').append("<div class='difficulty_box'></div>");
                 $('#frontpage-available-course-list .difficulty_box').css({'position' : 'relative', 'top' : '-37px','width' : '10px'});
                 $('.coursebox a').css({'position' : 'relative', 'left' : '10px'});
+                $('.frontpage-course-list-enrolled .reaction_box').css({'position' : 'relative', 'left' : '72%', 'top' : '-30px','width' : '10%'});
+                $('.frontpage-course-list-enrolled .difficulty_box').css({'position' : 'relative', 'top' : '-37px','width' : '10px'});
                 /* folder friendly */
                 $('.folder .mod-indent-outer').each(function (index, element) {
                 	if (!$(element).find(".activityinstance").length > 0){
@@ -447,22 +449,12 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, ajax, notificat
                             }
                         }
 
-                        function containsObject(obj, list) {
-                            var i;
-                            for (i = 0; i < list.length; i++) {
-                                if (list[i] === obj) {
-                                    return true;
-                                }
-                            }
-
-                            return false;
-                        }
-
                         /**
                          * Event when the reaction image is clicked
                          * @param {Object} event
                          */
                         function onClick(event) {
+                        	/* Test if action is on main if true then test if user is enrolled in course */
                             var isOnMainPage = (courseId != 1 ? true : (custom.ids).includes(event.data.moduleId.toString(10)));
                             if (isOnMainPage) {
                                 if (userId !== null && userId !== 1) {
@@ -498,8 +490,7 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, ajax, notificat
                                                 done: function() {
 
                                                     /* Increment the number of the new reaction of 1 */
-                                                    (event.data.module).getElementsByClassName(event.data.reactionName + '_nb')[0]
-                                                        .innerText = (nbReation + 1);
+                                                	$('#module-' + event.data.moduleId + ' .' + event.data.reactionName + '_nb').text(nbReation + 1);
 
                                                     /* Update the text appearance to know that this is the selected reaction */
                                                     $('#module-' + event.data.moduleId + ' .' + event.data.reactionName + '_nb').css({
@@ -537,8 +528,7 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, ajax, notificat
                                                     nbReation--;
 
                                                     /* Update the number of old reaction */
-                                                    (event.data.module).getElementsByClassName(event.data.reactionName + '_nb')[0]
-                                                        .innerText = nbReation;
+                                                    $('#module-' + event.data.moduleId + ' .' + event.data.reactionName + '_nb').text(nbReation);
 
                                                     /* Update the text appearance to know that this is no longer the selected reaction */
                                                     $('#module-' + event.data.moduleId + ' .' + event.data.reactionName + '_nb').css({
@@ -582,8 +572,7 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, ajax, notificat
                                                 done: function() {
 
                                                     /* Increment the number of 'reactionName' reaction of 1 */
-                                                    (event.data.module).getElementsByClassName(event.data.reactionName + '_nb')[0]
-                                                        .innerText = (nbReation + 1);
+                                                	$('#module-' + event.data.moduleId + ' .' + event.data.reactionName + '_nb').text(nbReation + 1);
 
                                                     /* Update the text appearance to know that this is the selected reaction */
                                                     $('#module-' + (event.data.moduleId) + ' .' + (event.data.reactionName) + '_nb').css({
@@ -610,8 +599,7 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, ajax, notificat
                                                         .getElementsByClassName(reationSelectName + '_nb')[0].innerText) - 1;
 
                                                     /* Update the value of the old reaction */
-                                                    (event.data.module).getElementsByClassName(reationSelectName + '_nb')[0]
-                                                        .innerText = nbReationSelect;
+                                                    $('#module-' + event.data.moduleId + ' .' + reationSelectName + '_nb').text(nbReationSelect);
 
                                                     /* Update the text appearance to know that this is no longer the selected reaction */
                                                     $('#module-' + (event.data.moduleId) + ' .' + reationSelectName + '_nb').css({

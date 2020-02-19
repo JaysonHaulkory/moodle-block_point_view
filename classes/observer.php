@@ -42,8 +42,8 @@ class block_point_view_observer {
      */
     public static function store(\core\event\base $event) {
         global $DB, $CFG, $COURSE;
-
-        if ($COURSE->id !== 1) {
+        echo $COURSE->id;
+        if (intval($COURSE->id) !== intval(1)) {
             $coursecontext = context_course::instance($event->courseid);
             $blockrecord = $DB->get_record('block_instances', array('blockname' => 'point_view',
             'parentcontextid' => $coursecontext->id), '*');
