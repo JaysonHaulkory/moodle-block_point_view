@@ -773,14 +773,12 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, ajax, notificat
                                         manageReact(moduleId,'#module-');
                                     } else if ($('.coursebox[data-courseid="' + moduleId + '"]').find('.reaction_box').length == 0) {
                                         $('.coursebox[data-courseid="' + moduleId + '"]').append("<div class='reaction_box'></div>");
-                                        $('.coursebox[data-courseid="' + moduleId + '"]').append("<div class='difficulty_box'></div>");
                                         $('.coursebox[data-courseid="' + moduleId + '"] .reaction_box').append(htmlBlock);
                                         manageReact(moduleId,'#module-');
                                     }
                                 }
                                 if ($('.course_category_tree .coursebox[data-courseid="' + moduleId + '"]').find('.reaction_box').length == 0) {
                                     $('.course_category_tree .coursebox[data-courseid="' + moduleId + '"]').append("<div class='reaction_box'></div>");
-                                    $('.course_category_tree .coursebox[data-courseid="' + moduleId + '"]').append("<div class='difficulty_box'></div>");
                                     $('.course_category_tree .coursebox[data-courseid="' + moduleId + '"] .reaction_box').append(htmlBlock);
                                     if ($('.course_category_tree .coursebox[data-courseid="' + moduleId + '"]').find('.reaction_box').length !== 0) {
                                         manageReact(moduleId,'.course_category_tree #module-');
@@ -921,53 +919,62 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, ajax, notificat
                                 /* MOUSE OUT */
                                 .mouseout({module: module, moduleId: moduleId}, reactionMouseOut);
                         }
-
-                        /* Display difficulty tracks */
-                        difficultylevels.forEach(function(value) {
-                            var position = (courseId == 1 ? " .difficulty_box" : " .activityinstance a");
-                            $('.coursebox[data-courseid="' + value.id + '"]').prop('id', 'module-' + value.id);
-                            if (value.difficultyLevel !== '0') {
-                                var difficulty;
-                                switch (parseInt(value.difficultyLevel)) {
-                                    case 1:
-                                        difficulty = 'green';
-                                        break;
-                                    case 2:
-                                        difficulty = 'blue';
-                                        break;
-                                    case 3:
-                                        difficulty = 'red';
-                                        break;
-                                    case 4:
-                                        difficulty = 'black';
-                                        break;
-                                }
-
-                                var difficultyBlock = '<div class="block_point_view track ' + difficulty + 'track"></div>';
-
-                                $('#module-' + value.id + position).prepend(difficultyBlock);
-                            } else {
-                                var difficultyBlockEmpty = '<span class="block_point_view track"></span>';
-                                $('#module-' + value.id + position).prepend(difficultyBlockEmpty);
-                            }
-                        });
-
-                        $('.notloaded').click(function() {
-                            $.ajax({
-                                complete: function(){
-                                    setTimeout(function(){ CreateReactions(); }, 4000);
+                        CreateDifficulty();
+                        function CreateDifficulty() {
+                        	/* Display difficulty tracks */
+                            difficultylevels.forEach(function(value) {
+                                var position = (courseId == 1 ? " .difficulty_box" : " .activityinstance a");
+                                $('.coursebox[data-courseid="' + value.id + '"]').prop('id', 'module-' + value.id);
+                                if (value.difficultyLevel !== '0') {
+                                    var difficulty;
+                                    switch (parseInt(value.difficultyLevel)) {
+                                        case 1:
+                                            difficulty = 'green';
+                                            break;
+                                        case 2:
+                                            difficulty = 'blue';
+                                            break;
+                                        case 3:
+                                            difficulty = 'red';
+                                            break;
+                                        case 4:
+                                            difficulty = 'black';
+                                            break;
+                                    }
+                                    var difficultyBlock = '<div class="block_point_view track ' + difficulty + 'track"></div>';
+                                    
+                                    if ($('.coursebox[data-courseid="' + value.id + '"]').find('.difficulty_box').length == 0) {
+                                    	$('.coursebox[data-courseid="' + value.id + '"]').append("<div class='difficulty_box'></div>");
+                                    	$('#module-' + value.id + position).prepend(difficultyBlock);
+                                    }
+                                    if ($('.course_category_tree .coursebox[data-courseid="' + value.id + '"]').find('.difficulty_box').length == 0) {
+                                    	$('.course_category_tree .coursebox[data-courseid="' + value.id + '"]').append("<div class='difficulty_box'></div>");
+                                        $('.course_category_tree #module-' + value.id + position).prepend(difficultyBlock);
+                                    }
+                                    /* Set the colors of difficulty tracks */
+                                    $('.greentrack').css({'background-color': trackcolor.greentrack});
+                                    $('.bluetrack').css({'background-color': trackcolor.bluetrack});
+                                    $('.redtrack').css({'background-color': trackcolor.redtrack});
+                                    $('.blacktrack').css({'background-color': trackcolor.blacktrack});
+                                } else {
+                                    var difficultyBlockEmpty = '<span class="block_point_view track"></span>';
+                                    $('#module-' + value.id + position).prepend(difficultyBlockEmpty);
                                 }
                             });
-                        });
+                        }
+                        // This need to be fixed to manage reactions on subcategories (Doesn't display when subcategories are not loaded).
+                        /* $('.notloaded').click(async function(event) {
+                            var checkExist = setInterval(function() {
+                            	if ($(event.target).find('coursebox') !== 0) {
+                        	        clearInterval(checkExist);
+                        	        CreateReactions();
+                                    CreateDifficulty();
+                                }
+                            }, 500);
+                        }); */
 
                         /* Dont' hide tooltip when reaction are in the top of course*/
                         $('#region-main > .card').css({'overflow-x': 'unset'});
-
-                        /* Set the colors of difficulty tracks */
-                        $('.greentrack').css({'background-color': trackcolor.greentrack});
-                        $('.bluetrack').css({'background-color': trackcolor.bluetrack});
-                        $('.redtrack').css({'background-color': trackcolor.redtrack});
-                        $('.blacktrack').css({'background-color': trackcolor.blacktrack});
 
                         /* Add animation to menu button */
                         $('.block_point_view #menu_point_view_img')
